@@ -30,8 +30,7 @@ module Operations
             hbx_id: person.hbx_id.to_s,
             person_name: construct_person_name(person),
             person_demographics: construct_person_demographics(person),
-            person_health: {is_tobacco_user: person.is_tobacco_user,
-                            is_physically_disabled: person.is_physically_disabled},
+            person_health: transform_person_health(person),
             no_dc_address: person.no_dc_address,
             no_dc_address_reason: person.no_dc_address_reason,
             is_homeless: person.is_homeless,
@@ -54,6 +53,12 @@ module Operations
             timestamp: {created_at: person.created_at.to_datetime, modified_at: person.updated_at.to_datetime}
           }
           Success(payload)
+        end
+
+        def transform_person_health(person)
+          ph_hash = { is_physically_disabled: person.is_physically_disabled }
+          ph_hash.merge!(is_tobacco_user: person.is_tobacco_user) if person.is_tobacco_user.present?
+          ph_hash
         end
 
         def transform_consumer_role(consumer_role)
@@ -166,12 +171,13 @@ module Operations
 
         def transform_ridp_documents(ridp_documents)
           ridp_documents.collect do |document|
-            {
+            ridp_documents_hash = {
               status: document.status,
               ridp_verification_type: document.ridp_verification_type,
-              comment: document.comment,
-              uploaded_at: document.uploaded_at
+              comment: document.comment
             }
+            ridp_documents_hash.merge!(uploaded_at: document.uploaded_at) if document.uploaded_at.present?
+            ridp_documents_hash
           end
         end
 
