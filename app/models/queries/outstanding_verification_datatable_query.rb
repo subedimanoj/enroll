@@ -17,7 +17,6 @@ module Queries
     end
 
     def build_scope()
-
       family = Family.outstanding_verification_datatable
       person = Person
       family= family.send(@custom_attributes[:documents_uploaded]) if @custom_attributes[:documents_uploaded].present?
